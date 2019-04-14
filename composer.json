@@ -1,0 +1,14 @@
+{
+    "name": "tubal/proyecto_daw",
+    "type": "project",
+    "require": {
+        "aharen/omdbapi" : "~2.0",
+        "php-tmdb/api": "~2.1"
+    },
+    "authors": [
+        {
+            "name": "Túbal Martín",
+            "email": "tubalmartin@gmail.com"
+        }
+    ]
+}
