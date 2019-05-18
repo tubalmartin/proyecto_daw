@@ -1,0 +1,8 @@
+img {
+    max-width: 100%;
+}
+
+
+.movie-data img {
+    max-width: 300px;
+}

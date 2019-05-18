@@ -3,28 +3,71 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Site extends CI_Controller {
 
-	/**
-	 * Index Page for this controller.
-	 *
-	 * Maps to the following URL
-	 * 		http://example.com/index.php/welcome
-	 *	- or -
-	 * 		http://example.com/index.php/welcome/index
-	 *	- or -
-	 * Since this controller is set as the default controller in
-	 * config/routes.php, it's displayed at http://example.com/
-	 *
-	 * So any other public methods not prefixed with an underscore will
-	 * map to /index.php/welcome/<method_name>
-	 * @see https://codeigniter.com/user_guide/general/urls.html
-	 */
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->load->helper('url');
+        $this->load->helper('date');
+        $this->load->helper('text');
+        $this->load->model('MovieDb_model');
+    }
+
 	public function index()
 	{
-		$this->load->view('welcome_message');
+	    $this->intheaters();
 	}
 
-	public function search($query)
+	public function intheaters() {
+        $movies = $this->MovieDb_model->getNowPlayingMovies();
+        $this->indexView($movies);
+    }
+
+    public function upcoming() {
+        $movies = $this->MovieDb_model->getUpcomingMovies();
+        $this->indexView($movies);
+    }
+
+    private function indexView($movies) {
+        $this->load->view('base', [
+            'view' => 'site/index',
+            'data' => [
+                'moviedb_search_form' => [
+                    'action' => 'site/search',
+                    'query' => ''
+                ],
+                'movies' => $movies
+            ]
+        ]);
+    }
+
+	public function movie($id) {
+        $movie = $this->MovieDb_model->getMovie($id);
+        $this->load->view('base', [
+            'view' => 'site/movie',
+            'data' => [
+                'movie' => $movie
+            ]
+        ]);
+    }
+
+    public function person($id) {
+
+    }
+
+	public function search()
     {
-        $this->load->view('base', ['view' => 'search_results']);
+        $query = $this->input->post('query');
+        $results = $this->MovieDb_model->getSearchResults($query);
+        $this->load->view('base', [
+            'view' => 'site/search',
+            'data' => [
+                'moviedb_search_form' => [
+                    'action' => 'site/search',
+                    'query' => $query
+                ],
+                'results' => $results
+            ]
+        ]);
     }
 }

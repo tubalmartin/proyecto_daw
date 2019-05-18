@@ -1,7 +1,7 @@
 <?php
 
-$this->load->view('html_start');
-$this->load->view('header');
-$this->load->view($view);
-$this->load->view('footer');
-$this->load->view('html_end');
+$this->load->view('common/html_start');
+$this->load->view('common/header');
+$this->load->view($view, $data);
+$this->load->view('common/footer');
+$this->load->view('common/html_end');
