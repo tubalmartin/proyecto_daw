@@ -20,46 +20,143 @@ class MovieDb_model extends CI_Model
         $this->imageHelper = new \Tmdb\Helper\ImageHelper($this->configRepository);
     }
 
-    public function getNowPlayingMovies() {
+    public function getNowPlayingMovies($page) {
         $response = $this->client->getMoviesApi()->getNowPlaying([
-            'page' => 1,
+            'page' => $page,
             'region' => 'ES'
         ]);
 
-        return $this->addFullImagePaths($response['results']);
+        $response['results'] = $this->addFullImagePaths($response['results']);
+
+        return $response;
     }
 
-    public function getUpcomingMovies() {
+    public function getUpcomingMovies($page) {
         $response = $this->client->getMoviesApi()->getUpcoming([
-            'page' => 1,
+            'page' => $page,
             'region' => 'ES'
         ]);
 
-        return $this->addFullImagePaths($response['results']);
+        $response['results'] = $this->addFullImagePaths($response['results']);
+
+        return $response;
     }
 
-    public function getSearchResults($query) {
-        $response = $this->client->getSearchApi()->searchMulti($query);
-        $filteredResults = array_filter($response['results'], function($result) {
-            return $this->isValidMovie($result) || $this->isValidPerson($result);
-        });
+    public function getPopularMovies($page) {
+        $response = $this->client->getMoviesApi()->getPopular([
+            'page' => $page,
+            'region' => 'ES'
+        ]);
 
-        return $this->addFullImagePaths($filteredResults);
+        $response['results'] = $this->addFullImagePaths($response['results']);
+
+        return $response;
+    }
+
+    public function getTopRatedMovies($page) {
+        $response = $this->client->getMoviesApi()->getTopRated([
+            'page' => $page,
+            'region' => 'ES'
+        ]);
+
+        $response['results'] = $this->addFullImagePaths($response['results']);
+
+        return $response;
+    }
+
+    public function getSearchResults($query, $page) {
+        $response = $this->client->getSearchApi()->searchMulti($query, [
+            'page' => $page,
+            'region' => 'ES'
+        ]);
+        $response['results'] = $this->addFullImagePaths(array_filter($response['results'], function($result) {
+            return $this->isValidMovie($result) || $this->isValidPerson($result);
+        }));
+
+        return $response;
     }
 
     public function getMovie($id) {
-        $response = $this->client->getMoviesApi()->getMovie($id, ['append_to_response' => 'credits']);
+        $response = $this->client->getMoviesApi()->getMovie($id, ['append_to_response' => 'credits,similar']);
 
-        $response['credits']['cast'] = array_slice($response['credits']['cast'], 0, 8, true);
-        $response['credits']['crew'] = array_filter($response['credits']['crew'], function($member) {
-            return $member['job'] === 'Director';
-        });
+        $response['credits']['cast'] = $this->getFirstElements($response['credits']['cast'],8);
+        $response['credits']['crew'] = $this->filterCrewByJob($response['credits']['crew'], 'Director');
 
         return $this->addFullImagePaths($response);
     }
 
     public function getPerson($id) {
+        $response = $this->client->getPeopleApi()->getPerson($id, ['append_to_response' => 'movie_credits']);
 
+        $response['known_for_department'] = $this->getTranslatedDepartment($response['known_for_department']);
+        $response['gender'] = $this->getTranslatedGender($response['gender']);
+
+        if (isset($response['movie_credits']['cast'])) {
+            $this->sortByReleaseDateDesc($response['movie_credits']['cast']);
+            $response['movie_credits']['cast'] = $this->getFirstElements($response['movie_credits']['cast'], 8);
+        }
+
+        if (isset($response['movie_credits']['crew'])) {
+            $crew = [];
+            $this->sortByReleaseDateDesc($response['movie_credits']['crew']);
+            $crew['directing'] = $this->getFirstElements($this->filterCrewByDepartment($response['movie_credits']['crew'], 'Directing'), 8);
+            $crew['production'] = $this->getFirstElements($this->filterCrewByDepartment($response['movie_credits']['crew'], 'Production'), 8);
+            $response['movie_credits']['crew'] = $crew;
+        }
+
+        return $this->addFullImagePaths($response);
+    }
+
+    private function getTranslatedGender($gender) {
+        switch($gender) {
+            case 1:
+                return 'Femenino';
+            case 2:
+                return 'Masculino';
+            default:
+                return 'Otro';
+        }
+    }
+
+    private function getTranslatedDepartment($department) {
+        switch($department) {
+            case 'Acting':
+                return 'Interpretación';
+            case 'Directing':
+                return 'Dirección';
+            case 'Production':
+                return 'Producción';
+            default:
+                return 'Otro';
+        }
+    }
+
+    private function getFirstElements($list, $n) {
+        return array_slice($list, 0, $n, true);
+    }
+
+    private function sortByReleaseDateDesc(&$data) {
+        usort($data, function($a, $b) {
+            $date1 = isset($a['release_date']) ? $a['release_date'] : '00-00-0000';
+            $date2 = isset($b['release_date']) ? $b['release_date'] : '00-00-0000';
+
+            if ($date1 === $date2) {
+                return 0;
+            }
+            return ($date1 < $date2) ? 1 : -1;
+        });
+    }
+
+    private function filterCrewByJob($data, $job) {
+        return array_filter($data, function($member) use ($job) {
+            return $member['job'] === $job;
+        });
+    }
+
+    private function filterCrewByDepartment($data, $department) {
+        return array_filter($data, function($member) use ($department) {
+            return $member['department'] === $department;
+        });
     }
 
     private function isValidMovie($item) {
@@ -76,8 +173,10 @@ class MovieDb_model extends CI_Model
                 if (is_array($value)) {
                     $data[$key] = $this->addFullImagePaths($value);
                 } else {
-                    if (preg_match("/_path$/", $key) && !empty($value)) {
-                        $data[$key] = $this->imageHelper->getUrl($value);
+                    if (preg_match("/_path$/", $key)) {
+                        $data[$key] = empty($value)
+                            ? 'https://via.placeholder.com/150x225?text=?'
+                            : $this->imageHelper->getUrl($value);
                     }
                 }
             }

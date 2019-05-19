@@ -8,7 +8,7 @@
         <div class="col-8">
             <div class="card-body">
                 <h5 class="card-title"><a href="<?php echo site_url('/site/person/'.$person['id']) ?>"><?php echo $person['name'] ?></a></h5>
-                <p class="card-text"><a href="<?php echo site_url('/site/person/'.$person['id']) ?>">Más información</a></p>
+                <p class="card-text"><a href="<?php echo site_url('/site/person/'.$person['id']) ?>"><small>Más información</small></a></p>
             </div>
         </div>
     </div>

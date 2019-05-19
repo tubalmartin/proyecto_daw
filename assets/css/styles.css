@@ -1,8 +1,20 @@
 img {
-    max-width: 100%;
+    max-width: 100%
+}
+
+.header,
+.footer {
+    background-color: navy;
+}
+.header .logo-link:hover {
+    text-decoration: none;
+}
+.footer{
+    color: white;
 }
 
 
-.movie-data img {
-    max-width: 300px;
+.movie-data .main-img,
+.person-data .main-img {
+    width: 300px;
 }

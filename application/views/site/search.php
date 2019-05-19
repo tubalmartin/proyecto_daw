@@ -1,8 +1,5 @@
-<div class="row">
-    <div class="col">
-        <?php $this->load->view('common/search_moviedb_form', $data); ?>
-    </div>
-</div>
+<?php $this->load->view('site/search_form', $data); ?>
+
 <h2>Resultados</h2>
 <div class="row">
     <?php
@@ -20,3 +17,5 @@
         <?php endif; ?>
     <?php endforeach; ?>
 </div>
+
+<?php $this->load->view('site/pagination'); ?>
