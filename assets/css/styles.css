@@ -13,6 +13,9 @@ img {
     color: white;
 }
 
+.card-text{
+    line-height: 1.2;
+}
 
 .movie-data .main-img,
 .person-data .main-img {
