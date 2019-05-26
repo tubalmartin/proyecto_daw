@@ -1,49 +1,47 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Site extends CI_Controller {
+class Site extends MY_Controller {
 
-    public function __construct()
-    {
+    public function __construct() {
         parent::__construct();
 
-        $this->load->library('pagination');
-        $this->load->helper('url');
-        $this->load->helper('date');
-        $this->load->helper('text');
-        $this->load->model('MovieDb_model');
+        $this->load->helper(['url', 'date', 'text', 'form']);
+        $this->load->library('cart');
+        $this->cart->product_name_rules = '\w \-\.\,\:\(\)';
+        $this->load->model('MovieDb_model', 'moviedb');
     }
 
-	public function index()
-	{
+	public function index() {
 	    $this->nowplaying();
 	}
 
 	public function nowplaying($page = 1) {
-        $response = $this->MovieDb_model->getNowPlayingMovies($page);
+        $response = $this->moviedb->getNowPlayingMovies($page);
         $this->initPagination('/site/nowplaying/', $response['total_pages']);
         $this->indexView($response['results'], 'home', 'nowplaying');
     }
 
     public function upcoming($page = 1) {
-        $response = $this->MovieDb_model->getUpcomingMovies($page);
+        $response = $this->moviedb->getUpcomingMovies($page);
         $this->initPagination('/site/upcoming/', $response['total_pages']);
         $this->indexView($response['results'], 'home','upcoming');
     }
 
     public function popular($page = 1) {
-        $response = $this->MovieDb_model->getPopularMovies($page);
+        $response = $this->moviedb->getPopularMovies($page);
         $this->initPagination('/site/popular/', $response['total_pages']);
         $this->indexView($response['results'], 'home','popular');
     }
 
     public function toprated($page = 1) {
-        $response = $this->MovieDb_model->getTopRatedMovies($page);
+        $response = $this->moviedb->getTopRatedMovies($page);
         $this->initPagination('/site/toprated/', $response['total_pages']);
         $this->indexView($response['results'], 'home','toprated');
     }
 
     private function initPagination($base_url, $total_pages, $config = []) {
+        $this->load->library('pagination');
         $this->pagination->initialize(array_merge([
             'base_url' => site_url($base_url),
             'use_page_numbers' => true,
@@ -67,7 +65,7 @@ class Site extends CI_Controller {
             'num_tag_close' => '</li>',
             'cur_tag_open' => '<li class="page-item active"><a class="page-link" href="#">',
             'cur_tag_close' => '</a></li>',
-            'attributes' => array('class' => 'page-link')
+            'attributes' => ['class' => 'page-link']
         ], $config));
     }
 
@@ -79,7 +77,7 @@ class Site extends CI_Controller {
                 'subpage_id' => $subpage_id,
                 'search_form' => [
                     'action' => 'site/search',
-                    'query' => ''
+                    'attributes' => []
                 ],
                 'movies' => $movies
             ]
@@ -87,14 +85,14 @@ class Site extends CI_Controller {
     }
 
 	public function movie($id) {
-        $movie = $this->MovieDb_model->getMovie($id);
+        $movie = $this->moviedb->getMovie($id);
         $this->load->view('base', [
             'view' => 'site/movie',
             'data' => [
                 'page_id' => 'home',
                 'search_form' => [
                     'action' => 'site/search',
-                    'query' => ''
+                    'attributes' => []
                 ],
                 'movie' => $movie
             ]
@@ -102,29 +100,28 @@ class Site extends CI_Controller {
     }
 
     public function person($id) {
-        $person = $this->MovieDb_model->getPerson($id);
+        $person = $this->moviedb->getPerson($id);
         $this->load->view('base', [
             'view' => 'site/person',
             'data' => [
                 'page_id' => 'home',
                 'search_form' => [
                     'action' => 'site/search',
-                    'query' => ''
+                    'attributes' => []
                 ],
                 'person' => $person
             ]
         ]);
     }
 
-	public function search($query = '', $page = 1)
-    {
+	public function search($query = '', $page = 1) {
         $queryPost = $this->input->post('query');
 
         if (!is_null($queryPost)) {
             $query = $queryPost;
         }
 
-        $response = $this->MovieDb_model->getSearchResults($query, $page);
+        $response = $this->moviedb->getSearchResults($query, $page);
         $this->initPagination('/site/search/'.$query.'/', $response['total_pages'], ['uri_segment' => 4]);
         $this->load->view('base', [
             'view' => 'site/search',
@@ -132,9 +129,118 @@ class Site extends CI_Controller {
                 'page_id' => 'home',
                 'search_form' => [
                     'action' => 'site/search',
-                    'query' => $query
+                    'attributes' => []
                 ],
                 'results' => $response['results']
+            ]
+        ]);
+    }
+
+    public function login() {
+        $this->load->library('form_validation');
+        $this->load->model('User_model', 'user');
+
+        $this->form_validation->set_rules('email', 'Email', 'required|valid_email');
+        $this->form_validation->set_rules('password', 'Contraseña', 'required');
+        $this->form_validation->set_rules(
+            'user', 'email y/o contraseña',
+            [
+                ['valid_user', function() {
+                    if ($this->user->isRegistered($this->input->post('email'), $this->input->post('password'))) {
+                        return true;
+                    } else {
+                        $this->form_validation->set_message('valid_user', 'El {field} introducido es incorrecto');
+                        return false;
+                    }
+                }]
+            ]
+        );
+
+        if ($this->form_validation->run() === FALSE) {
+            $this->load->view('base', [
+                'view' => 'site/login',
+                'data' => [
+                    'page_id' => 'login'
+                ]
+            ]);
+        } else {
+            $user = $this->user->getByCredentials($this->input->post('email'), $this->input->post('password'));
+            $this->session->set_userdata([
+                'is_admin' => $user['type'] === 'admin',
+                'user_id' => $user['id'],
+                'user_name' => $user['name'],
+                'user_type' => $user['type']
+            ]);
+
+            redirect('/'.$user['type']);
+        }
+    }
+
+    public function logout() {
+        $_SESSION = [];
+
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000,
+                $params["path"], $params["domain"],
+                $params["secure"], $params["httponly"]
+            );
+        }
+
+        $this->session->sess_destroy();
+
+        $this->index();
+    }
+
+    public function register() {
+
+    }
+
+    public function store($format = 'bluray') {
+        $this->load->model('Item_model', 'item');
+
+        $items = $this->item->getAllByFormat($format);
+
+        $this->load->view('base', [
+            'view' => 'site/store',
+            'data' => [
+                'page_id' => 'store',
+                'subpage_id' => $format,
+                'items' => $items
+            ]
+        ]);
+    }
+
+    public function addtocart() {
+        $this->load->model('Item_model', 'item');
+
+        if (empty($this->input->post('id'))) {
+            redirect('/site/store');
+        }
+
+        $itemId = $this->input->post('id');
+        $item = $this->item->getById($itemId);
+
+        if ($this->cart->insert([
+            'id' => $itemId,
+            'qty' => $this->input->post('qty'),
+            'price' => $item['price'],
+            'name' => $item['name']
+        ])) {
+            $this->session->set_flashdata('item_added_message', "Película añadida a la cesta correctamente");
+        } else {
+            $this->session->set_flashdata('item_not_added_message', "Ups, no se pudo añadir la película a la cesta");
+        }
+
+        redirect('/site/store');
+    }
+
+    public function cart() {
+        $this->load->view('base', [
+            'view' => 'site/cart',
+            'data' => [
+                'page_id' => 'store',
+                'items' => ''
             ]
         ]);
     }

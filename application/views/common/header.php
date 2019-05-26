@@ -10,14 +10,26 @@
                 <a class="nav-link <?php if($page_id === 'home'): ?>active<?php endif; ?>" href="<?php echo site_url() ?>">Home</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?php if($page_id === 'store'): ?>active<?php endif; ?>" href="<?php echo site_url('/store') ?>">Tienda</a>
+                <a class="nav-link <?php if($page_id === 'store'): ?>active<?php endif; ?>" href="<?php echo site_url('/site/store') ?>">Tienda</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?php if($page_id === 'login'): ?>active<?php endif; ?>" href="<?php echo site_url('/login') ?>">Iniciar sesión</a>
+                <a class="nav-link <?php if($page_id === 'cart'): ?>active<?php endif; ?>" href="<?php echo site_url('/site/cart') ?>"><i class="fas fa-shopping-cart"></i> Cesta</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link <?php if($page_id === 'register'): ?>active<?php endif; ?>" href="<?php echo site_url('/register') ?>">Registrarse</a>
-            </li>
+            <?php if(is_null($this->session->userdata('user_id'))): ?>
+                <li class="nav-item">
+                    <a class="nav-link <?php if($page_id === 'login'): ?>active<?php endif; ?>" href="<?php echo site_url('/site/login') ?>">Iniciar sesión</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php if($page_id === 'register'): ?>active<?php endif; ?>" href="<?php echo site_url('/site/register') ?>">Registrarse</a>
+                </li>
+            <?php else: ?>
+                <li class="nav-item">
+                    <a class="nav-link <?php if($page_id === 'account'): ?>active<?php endif; ?>" href="<?php echo site_url('/'.$this->session->userdata('user_type').'/account') ?>">Mi Cuenta</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?php echo site_url('/site/logout') ?>">Cerrar sesión</a>
+                </li>
+            <?php endif; ?>
         </ul>
     </div>
 </div>

@@ -1,6 +1,12 @@
 img {
     max-width: 100%
 }
+button[type="submit"] .spinner-border {
+    display: none;
+}
+button[type="submit"]:disabled .spinner-border {
+    display: inline-block;
+}
 
 .header,
 .footer {

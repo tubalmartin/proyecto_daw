@@ -1,4 +1,4 @@
-<div class="person_card card mb-3" style="max-width: 540px;">
+<div class="person_card card mb-3">
     <div class="row no-gutters">
         <div class="col-4">
             <a href="<?php echo site_url('/site/person/'.$person['id']) ?>">
