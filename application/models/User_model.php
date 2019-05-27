@@ -10,30 +10,50 @@ class User_model extends CI_Model
         $this->load->database();
     }
 
-    public function isRegistered($email, $password) {
-        $user = $this->getByCredentials($email, $password);
-        return $user !== null;
+    public function get($where = [], $multipleRows = false) {
+        $this->db
+            ->select('users.id, users.email, users.name, users.surname, user_types.name as type, users.address, users.city, users.postal_code, users.phone')
+            ->from('users')
+            ->join('user_types', 'user_types.id = users.type_id');
+
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+
+        $query = $this->db
+            ->order_by('users.id')
+            ->get();
+
+        return $query->num_rows() > 1 || $multipleRows === true
+                ? $query->result_array()
+                : $query->row_array();
+    }
+
+    public function getById($id) {
+        return $this->get(['users.id' => (int) $id]);
     }
 
     public function getByCredentials($email, $password) {
-        $md5Password = md5($password);
-        $query = $this->db
-            ->select('users.id, users.name, user_types.name as type')
-            ->from('users')
-            ->join('user_types', 'user_types.id = users.type_id')
-            ->where(['email' => $email, 'password' => $md5Password])
-            ->get();
-
-        return $query->num_rows() > 0
-            ? $query->row_array()
-            : null;
+        return $this->get(['users.email' => $email, 'users.password' => md5($password)]);
     }
 
-    public function create() {
-
+    public function isRegistered($email, $password) {
+        $user = $this->getByCredentials($email, $password);
+        return !empty($user);
     }
 
-    public function update() {
+    public function isEmailRegistered($email) {
+        $user = $this->get(['users.email' => $email]);
+        return !empty($user);
+    }
 
+    public function create($data) {
+        $data['password'] = md5($data['password']);
+        $data['type_id'] = USER_TYPE_ID;
+        return $this->db->insert('users', $data);
+    }
+
+    public function update($userId, $userData) {
+        return $this->db->update('users', $userData, ['id' => $userId]);
     }
 }

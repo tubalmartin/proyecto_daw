@@ -1,6 +1,9 @@
 <div class="row align-items-center mt-5 mb-5">
     <div class="col d-none d-md-block"></div>
     <div class="col-12 col-md-6 align-self-center">
+        <?php $this->load->view('common/flash_messages') ?>
+
+        <h4>Iniciar sesión</h4>
         <?php $this->load->view('common/validation_errors') ?>
         <?php echo form_open('/site/login', ['class' => 'needs-validation', 'novalidate' => '']); ?>
             <div class="form-group">

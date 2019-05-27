@@ -7,8 +7,10 @@ class Admin extends MY_Controller {
         parent::__construct();
 
         $this->load->helper(['url']);
-        $this->load->library('form_validation');
+
         $this->checkSession();
+
+        $this->load->library('form_validation');
     }
 
     private function checkSession() {
@@ -18,31 +20,62 @@ class Admin extends MY_Controller {
     }
 
     public function index() {
-        $this->account();
-    }
-
-    public function account() {
         $this->orders();
     }
 
     public function orders() {
         $this->load->model('Order_model', 'order');
+        $orders = $this->order->getAll();
         $this->load->view('base', [
-            'view' => 'admin/index',
+            'view' => 'admin/orders',
             'data' => [
                 'page_id' => 'account',
-                'subpage_id' => 'orders'
+                'subpage_id' => 'orders',
+                'orders' => $orders,
             ]
         ]);
     }
 
-    public function items() {
-        //$this->load->model('Item_model', 'order');
-        echo "ok";
+    public function order($orderId) {
+        $this->load->model('Order_model', 'order');
+        $order = $this->order->getById($orderId);
+        $orderItems = $this->order->getItems($orderId);
+        $this->load->view('base', [
+            'view' => 'admin/order',
+            'data' => [
+                'page_id' => 'account',
+                'subpage_id' => 'orders',
+                'order' => $order,
+                'order_items' => $orderItems
+            ]
+        ]);
     }
 
-    public function users() {
+    public function deliverorder() {
+        $orderId = $this->input->post('id');
+        $this->load->model('Order_model', 'order');
+        if ($this->order->setAsDelivered($orderId)) {
+            $this->session->set_flashdata('success_message', 'Pedido marcado como enviado correctamente');
+            redirect('/admin/orders');
+        } else {
+            $this->session->set_flashdata('error_message', 'Ups, no se pudo marcar el pedido como enviado');
+            redirect('/admin/order/'.$orderId);
+        }
+    }
 
+    public function storeitems() {
+        $this->load->model('Item_model', 'item');
+
+        $items = $this->item->getAll();
+
+        $this->load->view('base', [
+            'view' => 'admin/items',
+            'data' => [
+                'page_id' => 'account',
+                'subpage_id' => 'storeitems',
+                'items' => $items
+            ]
+        ]);
     }
 
     public function registermovie() {
@@ -101,8 +134,21 @@ class Admin extends MY_Controller {
         $this->load->model('Item_model', 'item');
         $this->load->model('Movie_model', 'movie');
 
-        $this->form_validation->set_rules('dvdprice', 'Precio DVD', 'required|numeric|greater_than[0]');
-        $this->form_validation->set_rules('blurayprice', 'Precio Blu-Ray', 'required|numeric|greater_than[0]');
+        $this->form_validation->set_rules('dvdprice', 'Precio DVD', 'numeric|greater_than[0]');
+        $this->form_validation->set_rules('blurayprice', 'Precio Blu-Ray', 'numeric|greater_than[0]');
+        $this->form_validation->set_rules(
+            'price', 'precio',
+            [
+                ['valid_price', function() {
+                    if (empty($this->input->post('dvdprice')) && empty($this->input->post('blurayprice'))) {
+                        $this->form_validation->set_message('valid_price', 'Debe indicar al menos el {field} de un formato');
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }]
+            ]
+        );
 
         if ($this->form_validation->run() === FALSE) {
             $this->load->view('base', [
@@ -122,7 +168,7 @@ class Admin extends MY_Controller {
 
             if ($this->item->save($id, $dvdPrice, $bluRayPrice)) {
                 $this->session->set_flashdata('success_message', "Película $action correctamente");
-                redirect('/admin/items');
+                redirect('/admin/storeitems');
             } else {
                 $this->session->set_flashdata('error_message', "Ups, no se pudo $action la película. Inténtalo de nuevo.");
                 redirect('/admin/createitem/'.$id);

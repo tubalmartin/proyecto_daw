@@ -89,3 +89,9 @@ defined('EXIT__AUTO_MAX')      OR define('EXIT__AUTO_MAX', 125); // highest auto
  */
 define('DVD_FORMAT_ID', 1);
 define('BLURAY_FORMAT_ID', 2);
+
+define('ORDER_PENDING_DELIVERY_ID', 1);
+define('ORDER_DELIVERED_ID', 2);
+
+define('USER_TYPE_ID', 2);
+define('ADMIN_TYPE_ID', 1);

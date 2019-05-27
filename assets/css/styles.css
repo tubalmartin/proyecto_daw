@@ -1,3 +1,11 @@
+html{
+    height: 100%;
+}
+body {
+    position: relative;
+    min-height: 100%;
+    padding-bottom: 118px;
+}
 img {
     max-width: 100%
 }
@@ -16,7 +24,12 @@ button[type="submit"]:disabled .spinner-border {
     text-decoration: none;
 }
 .footer{
+    height: 88px;
     color: white;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
 }
 
 .card-text{

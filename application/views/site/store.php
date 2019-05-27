@@ -1,15 +1,6 @@
 <div class="row mb-3">
     <div class="col">
-        <?php if(!is_null($this->session->flashdata('item_added_message'))): ?>
-            <div class="alert alert-success" role="alert">
-                <?php echo $this->session->flashdata('item_added_message') ?>
-            </div>
-        <?php endif; ?>
-        <?php if(!is_null($this->session->flashdata('item_not_added_message'))): ?>
-            <div class="alert alert-warning" role="alert">
-                <?php echo $this->session->flashdata('item_not_added_message') ?>
-            </div>
-        <?php endif; ?>
+        <?php $this->load->view('common/flash_messages') ?>
 
         <h4>Películas en venta</h4>
     </div>
@@ -31,8 +22,6 @@
         <?php
         foreach($items as $item): ?>
             <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-2">
-
-
                 <div class="card">
                     <a href="<?php echo site_url('/site/movie/'.$item['movie_id']) ?>">
                         <img src="<?php echo $item['image'] ?>" class="card-img-top">
@@ -44,14 +33,12 @@
                         <form action="<?php echo site_url('/site/addtocart') ?>" method="POST">
                             <input type="hidden" name="id" value="<?php echo $item['id'] ?>">
                             <div class="form-inline">
-                                <p class="mt-2 mb-1">Precio: <b><?php echo $item['price'] ?>€</b>/ud</p>
+                                <p class="mt-2 mb-1">Precio: <b><?php echo $this->cart->format_number($item['price']) ?>€</b>/ud</p>
                                 <label class="mr-2">Cantidad:</label>
                                 <select name="qty" class="custom-select">
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
+                                    <?php for($i = 1; $i <= 10; $i++): ?>
+                                        <option value="<?php echo $i ?>"><?php echo $i ?></option>
+                                    <?php endfor; ?>
                                 </select>
                             </div>
                             <button type="submit" class="btn btn-warning btn-sm mt-2">
@@ -62,5 +49,13 @@
                 </div>
             </div>
         <?php endforeach; ?>
+    </div>
+<?php else: ?>
+    <div class="row">
+        <div class="col">
+            <div class="alert alert-info" role="alert">
+                No hay artículos en venta por ahora
+            </div>
+        </div>
     </div>
 <?php endif; ?>

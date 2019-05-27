@@ -7,10 +7,17 @@ class MY_Controller extends CI_Controller {
     {
         parent::__construct();
 
-        $this->load->library('session');
+        $this->load->library(['session', 'cart']);
+        $this->cart->product_name_rules = '\w \-\.\,\:\(\)';
 
-        if (ENVIRONMENT !== 'production') {
-            $this->output->enable_profiler(TRUE);
-        }
+        $this->load->helper(['url', 'date', 'text', 'form']);
+
+        //if (ENVIRONMENT !== 'production') {
+          //  $this->output->enable_profiler(TRUE);
+        //}
+    }
+
+    protected function isUserLoggedIn() {
+        return !is_null($this->session->userdata('user_id'));
     }
 }

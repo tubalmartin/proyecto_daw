@@ -6,9 +6,6 @@ class Site extends MY_Controller {
     public function __construct() {
         parent::__construct();
 
-        $this->load->helper(['url', 'date', 'text', 'form']);
-        $this->load->library('cart');
-        $this->cart->product_name_rules = '\w \-\.\,\:\(\)';
         $this->load->model('MovieDb_model', 'moviedb');
     }
 
@@ -171,8 +168,11 @@ class Site extends MY_Controller {
                 'user_name' => $user['name'],
                 'user_type' => $user['type']
             ]);
+            $redirectUri = !is_null($this->session->userdata('post_login_url'))
+                ? $this->session->userdata('post_login_url')
+                : '/site';
 
-            redirect('/'.$user['type']);
+            redirect($redirectUri);
         }
     }
 
@@ -193,7 +193,53 @@ class Site extends MY_Controller {
     }
 
     public function register() {
+        $this->load->library('form_validation');
+        $this->load->model('User_model', 'user');
 
+        $this->form_validation->set_rules('email', 'Email', 'required|valid_email');
+        $this->form_validation->set_rules('password', 'Password', 'required');
+        $this->form_validation->set_rules('name', 'Nombre', 'required');
+        $this->form_validation->set_rules('surname', 'Apellidos', 'required');
+        $this->form_validation->set_rules('phone', 'Teléfono', 'required|min_length[9]|max_length[12]');
+        $this->form_validation->set_rules('address', 'Dirección', 'required');
+        $this->form_validation->set_rules('postal_code', 'Código postal', 'required|min_length[5]|max_length[5]');
+        $this->form_validation->set_rules('city', 'Ciudad', 'required');
+        $this->form_validation->set_rules(
+            'user', 'usuario',
+            [
+                ['valid_user', function() {
+                    if ($this->user->isEmailRegistered($this->input->post('email'))) {
+                        $this->form_validation->set_message('valid_user', 'El {field} introducido ya está registrado');
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }]
+            ]
+        );
+
+        if ($this->form_validation->run() === FALSE) {
+            $this->load->view('base', [
+                'view' => 'site/register',
+                'data' => [
+                    'page_id' => 'register',
+                    'user_form' => [
+                        'action' => '/site/register',
+                        'registration_form' => true,
+                        'attributes' => []
+                    ],
+                    'user' => []
+                ]
+            ]);
+        } else {
+            if ($this->user->create($this->input->post())){
+                $this->session->set_flashdata('success_message', 'Usuario registrado correctamente');
+                redirect('/site/login');
+            } else {
+                $this->session->set_flashdata('error_message', 'Ups, no se pudo completar el registro');
+                redirect('/site/register');
+            }
+        }
     }
 
     public function store($format = 'bluray') {
@@ -225,11 +271,14 @@ class Site extends MY_Controller {
             'id' => $itemId,
             'qty' => $this->input->post('qty'),
             'price' => $item['price'],
-            'name' => $item['name']
+            'name' => $item['name'],
+            'image' => $item['image'],
+            'format' => $item['format_name'],
+            'movie_id' => $item['movie_id']
         ])) {
-            $this->session->set_flashdata('item_added_message', "Película añadida a la cesta correctamente");
+            $this->session->set_flashdata('success_message', "Película añadida a la cesta correctamente");
         } else {
-            $this->session->set_flashdata('item_not_added_message', "Ups, no se pudo añadir la película a la cesta");
+            $this->session->set_flashdata('error_message', "Ups, no se pudo añadir la película a la cesta");
         }
 
         redirect('/site/store');
@@ -239,9 +288,62 @@ class Site extends MY_Controller {
         $this->load->view('base', [
             'view' => 'site/cart',
             'data' => [
-                'page_id' => 'store',
-                'items' => ''
+                'page_id' => 'cart'
             ]
         ]);
+    }
+
+    public function updatecart() {
+        if ($this->cart->update([
+            'rowid' => $this->input->post('rowid'),
+            'qty' => $this->input->post('qty')
+        ])) {
+            $this->session->set_flashdata('success_message', "Cesta actualizada correctamente");
+        } else {
+            $this->session->set_flashdata('error_message', "Ups, no se pudo actualizar la cesta");
+        }
+
+        redirect('/site/cart');
+    }
+
+    public function checkout() {
+        if ($this->isUserLoggedIn()) {
+            $this->load->model('User_model', 'user');
+            $this->session->unset_userdata('post_login_url');
+            $user = $this->user->getById($this->session->userdata('user_id'));
+
+            $this->load->view('base', [
+                'view' => 'site/checkout',
+                'data' => [
+                    'page_id' => 'store',
+                    'user' => $user
+                ]
+            ]);
+        } else {
+            $this->session->set_flashdata('warn_message', 'Debes iniciar sesión para continuar');
+            $this->session->set_userdata('post_login_url', '/site/checkout');
+            redirect('/site/login');
+        }
+    }
+
+    public function order() {
+        if ($this->isUserLoggedIn()) {
+            $this->load->model('Order_model', 'order');
+            if ($this->order->create([
+                'user_id' => $this->session->userdata('user_id'),
+                'items' => $this->cart->contents(),
+                'total' => $this->cart->total()
+            ])) {
+                $this->session->set_flashdata('success_message', "Pedido realizado correctamente");
+                $this->cart->destroy();
+                redirect('/user/orders');
+            } else {
+                $this->session->set_flashdata('error_message', "Ups, no se pudo realizar el pedido");
+                redirect('/site/checkout');
+            }
+        } else {
+            $this->session->set_userdata('post_login_url', '/site/checkout');
+            $this->login();
+        }
     }
 }

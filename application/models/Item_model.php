@@ -34,6 +34,10 @@ class Item_model extends CI_Model
         return $this->get(['items.id' => (int) $id]);
     }
 
+    public function getAll() {
+        return $this->get();
+    }
+
     public function getAllByFormat($format) {
         return $this->get(['format_id' => $format === 'bluray' ? BLURAY_FORMAT_ID : DVD_FORMAT_ID]);
     }
@@ -69,29 +73,35 @@ class Item_model extends CI_Model
             : null;
     }
 
-    public function save($movieId, $dvdPrice, $bluRayPrice) {
+    public function save($movieId, $dvdPrice, $bluRayPrice)
+    {
         $dvdId = $this->getIdByMovieId($movieId, ['format_id' => DVD_FORMAT_ID]);
         $bluRayId = $this->getIdByMovieId($movieId, ['format_id' => BLURAY_FORMAT_ID]);
         $dvdData = [
             'movie_id' => $movieId,
             'format_id' => DVD_FORMAT_ID,
-            'price' => (float) $dvdPrice
+            'price' => (float)$dvdPrice
         ];
         $bluRayData = [
             'movie_id' => $movieId,
             'format_id' => BLURAY_FORMAT_ID,
-            'price' => (float) $bluRayPrice
+            'price' => (float)$bluRayPrice
         ];
+        $ret = [];
 
-        $q1 = is_null($dvdId)
-            ? $this->insert($dvdData)
-            : $this->update($dvdId, $dvdData['price']);
+        if ($dvdData['price'] > 0) {
+            $ret[] = is_null($dvdId)
+                ? $this->insert($dvdData)
+                : $this->update($dvdId, $dvdData['price']);
+        }
 
-        $q2 = is_null($bluRayId)
-            ? $this->insert($bluRayData)
-            : $this->update($bluRayId, $bluRayData['price']);
+        if ($bluRayData['price'] > 0) {
+            $ret[] = is_null($bluRayId)
+                ? $this->insert($bluRayData)
+                : $this->update($bluRayId, $bluRayData['price']);
+        }
 
-        return $q1 && $q2;
+        return !in_array(false, $ret);
     }
 
     private function insert($data) {

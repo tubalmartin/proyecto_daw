@@ -1,14 +1,11 @@
 <?php $this->load->view('admin/nav', $data) ?>
 
-<div class="row">
-    <div class="col">
-        <?php if(!is_null($this->session->flashdata('error_message'))): ?>
-            <div class="alert alert-error" role="alert">
-                <?php echo $this->session->flashdata('error_message') ?>
-            </div>
-        <?php endif; ?>
+<div class="row align-items-center">
+    <div class="col d-none d-md-block"></div>
+    <div class="col-12 col-md-6 align-self-center">
+        <?php $this->load->view('common/flash_messages') ?>
 
-        <h4>Registrar película</h4>
+        <h4 class="mb-3">Registrar película</h4>
 
         <?php $this->load->view('common/validation_errors') ?>
 
@@ -25,4 +22,5 @@
             </form>
         </div>
     </div>
+    <div class="col d-none d-md-block"></div>
 </div>
