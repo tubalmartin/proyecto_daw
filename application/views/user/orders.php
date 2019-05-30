@@ -28,7 +28,7 @@
                             <td><?php echo date('d-m-Y g:i A', strtotime($order['date'])) ?></td>
                             <td><?php echo $order['status'] ?></td>
                             <td><?php echo $order['total_price'] ?>€</td>
-                            <td><a href="<?php echo site_url('/user/order/'.$order['id']) ?>">Ver pedido</a></td>
+                            <td><a href="<?php echo site_url('/user/order/'.$order['id']) ?>"><i class="fas fa-eye"></i> Ver<span class="d-none d-sm-inline"> pedido</span></a></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

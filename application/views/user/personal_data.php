@@ -15,7 +15,7 @@
         <p>Código postal: <?php echo $user['postal_code'] ?></p>
         <p>Ciudad: <?php echo $user['city'] ?></p>
         <hr>
-        <p><a href="<?php echo site_url('/user/edit') ?>" class="btn btn-primary">Editar</a></p>
+        <p><a href="<?php echo site_url('/user/edit') ?>" class="btn btn-primary"><i class="fas fa-edit"></i> Editar</a></p>
     </div>
     <div class="col d-none d-md-block"></div>
 </div>

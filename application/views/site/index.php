@@ -26,9 +26,6 @@
         <div class="col-12 col-md-6">
             <?php $this->load->view('common/movie_card', ['movie' => $movie]); ?>
         </div>
-    <?php if ($i % 2 === 0): ?>
-        <!--<div class="w-100"></div>-->
-    <?php endif; ?>
 <?php endforeach; ?>
 </div>
 

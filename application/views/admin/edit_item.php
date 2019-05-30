@@ -29,7 +29,7 @@
                     </div>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary">Publicar</button>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-store"></i> Publicar</button>
         </form>
     </div>
     <div class="col d-none d-md-block"></div>

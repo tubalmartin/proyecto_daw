@@ -35,7 +35,7 @@
             <div class="col-9 offset-3">
                 <p><b>Total: <?php echo $this->cart->format_number($this->cart->total()); ?>€</b></p>
                 <p>
-                    <a class="btn btn-warning btn-lg" href="<?php echo site_url('/site/order') ?>">Confirmar pedido</a> o <a class="btn btn-light btn-sm" href="<?php echo site_url('/site/cart'); ?>">Modificar cesta</a>
+                    <a class="btn btn-warning btn-lg" href="<?php echo site_url('/site/order') ?>"><i class="fas fa-credit-card"></i> Confirmar pedido</a> o <a class="btn btn-light btn-sm" href="<?php echo site_url('/site/cart'); ?>"><i class="fas fa-edit"></i> Modificar cesta</a>
                 </p>
             </div>
         </div>

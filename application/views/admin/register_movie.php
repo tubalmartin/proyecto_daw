@@ -18,7 +18,7 @@
                     <label for="movie">Selecciona la película</label>
                     <select name="id" id="movie" class="custom-select" disabled required></select>
                 </div>
-                <button type="submit" class="btn btn-primary">Registrar</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Registrar</button>
             </form>
         </div>
     </div>

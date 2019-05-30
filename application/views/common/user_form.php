@@ -44,6 +44,6 @@
         </div>
     </fieldset>
 
-    <button type="submit" class="btn btn-primary">Enviar</button>
+    <button type="submit" class="btn btn-primary"><?php echo $user_form['submit_button_text'] ?></button>
 
 </form>

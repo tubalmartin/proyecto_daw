@@ -22,7 +22,7 @@
                             <hr>
                             <small><b><?php echo $item['price'] ?>€</b> · <?php echo $item['format_name'] ?></small>
                             <br>
-                            <a href="<?php echo site_url('/admin/edititem/'.$item['movie_id']) ?>"><small>Editar</small></a>
+                            <a class="btn btn-primary btn-sm mt-1" href="<?php echo site_url('/admin/edititem/'.$item['movie_id']) ?>"><small><i class="fas fa-edit"></i> Editar</small></a>
                         </span>
                     </span>
                 </div>

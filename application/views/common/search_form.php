@@ -4,7 +4,7 @@
         <div class="input-group-append">
             <button class="btn btn-outline-secondary" type="submit">
                 <span class="spinner-border spinner-border-sm" role="status"></span>
-                Buscar
+                <i class="fas fa-search"></i> Buscar
             </button>
         </div>
     </div>

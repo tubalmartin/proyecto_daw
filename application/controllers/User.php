@@ -52,7 +52,8 @@ class User extends MY_Controller {
                     'user_form' => [
                         'action' => '/user/edit',
                         'registration_form' => false,
-                        'attributes' => []
+                        'attributes' => [],
+                        'submit_button_text' => 'Actualizar'
                     ],
                     'user' => $user
                 ]

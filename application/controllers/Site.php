@@ -161,19 +161,23 @@ class Site extends MY_Controller {
                 ]
             ]);
         } else {
-            $user = $this->user->getByCredentials($this->input->post('email'), $this->input->post('password'));
-            $this->session->set_userdata([
-                'is_admin' => $user['type'] === 'admin',
-                'user_id' => $user['id'],
-                'user_name' => $user['name'],
-                'user_type' => $user['type']
-            ]);
-            $redirectUri = !is_null($this->session->userdata('post_login_url'))
-                ? $this->session->userdata('post_login_url')
-                : '/site';
-
-            redirect($redirectUri);
+            $this->_login($this->input->post('email'), $this->input->post('password'));
         }
+    }
+
+    private function _login($email, $pass) {
+        $user = $this->user->getByCredentials($email, $pass);
+        $this->session->set_userdata([
+            'is_admin' => $user['type'] === 'admin',
+            'user_id' => $user['id'],
+            'user_name' => $user['name'],
+            'user_type' => $user['type']
+        ]);
+        $redirectUri = !is_null($this->session->userdata('post_login_url'))
+            ? $this->session->userdata('post_login_url')
+            : '/site';
+
+        redirect($redirectUri);
     }
 
     public function logout() {
@@ -226,7 +230,8 @@ class Site extends MY_Controller {
                     'user_form' => [
                         'action' => '/site/register',
                         'registration_form' => true,
-                        'attributes' => []
+                        'attributes' => [],
+                        'submit_button_text' => 'Registrarse'
                     ],
                     'user' => []
                 ]
@@ -234,7 +239,7 @@ class Site extends MY_Controller {
         } else {
             if ($this->user->create($this->input->post())){
                 $this->session->set_flashdata('success_message', 'Usuario registrado correctamente');
-                redirect('/site/login');
+                $this->_login($this->input->post('email'), $this->input->post('password'));
             } else {
                 $this->session->set_flashdata('error_message', 'Ups, no se pudo completar el registro');
                 redirect('/site/register');
@@ -320,7 +325,7 @@ class Site extends MY_Controller {
                 ]
             ]);
         } else {
-            $this->session->set_flashdata('warn_message', 'Debes iniciar sesión para continuar');
+            $this->session->set_flashdata('warn_message', 'Debes iniciar sesión o <a href="'.site_url('/site/register').'">registrarte</a> para continuar');
             $this->session->set_userdata('post_login_url', '/site/checkout');
             redirect('/site/login');
         }

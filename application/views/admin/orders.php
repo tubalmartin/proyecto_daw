@@ -29,7 +29,7 @@
                         <td><?php echo $order['user_name'] ?> <?php echo $order['user_surname'] ?></td>
                         <td><?php echo $order['status'] ?></td>
                         <td><?php echo $order['total_price'] ?>€</td>
-                        <td><a href="<?php echo site_url('/admin/order/'.$order['id']) ?>">Ver pedido</a></td>
+                        <td><a href="<?php echo site_url('/admin/order/'.$order['id']) ?>"><i class="fas fa-eye"></i> Ver pedido</a></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>

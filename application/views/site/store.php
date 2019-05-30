@@ -33,7 +33,7 @@
                         <form action="<?php echo site_url('/site/addtocart') ?>" method="POST">
                             <input type="hidden" name="id" value="<?php echo $item['id'] ?>">
                             <div class="form-inline">
-                                <p class="mt-2 mb-1">Precio: <b><?php echo $this->cart->format_number($item['price']) ?>€</b>/ud</p>
+                                <p class="mt-2 mb-1">Precio: <b><?php echo $this->cart->format_number($item['price']) ?>€</b></p>
                                 <label class="mr-2">Cantidad:</label>
                                 <select name="qty" class="custom-select">
                                     <?php for($i = 1; $i <= 10; $i++): ?>
