@@ -8,7 +8,7 @@ class MY_Controller extends CI_Controller {
         parent::__construct();
 
         $this->load->library(['session', 'cart']);
-        $this->cart->product_name_rules = '\w \-\.\,\:\(\)';
+        $this->cart->product_name_rules = '\w \-\.\,\:\(\)\¡\!\¿\?\;';
 
         $this->load->helper(['url', 'date', 'text', 'form']);
 
