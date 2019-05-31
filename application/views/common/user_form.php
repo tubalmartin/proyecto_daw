@@ -28,7 +28,7 @@
         </div>
         <div class="form-group">
             <label>Teléfono</label>
-            <input type="text" class="form-control" name="phone" value="<?php echo set_value('phone', isset($user['phone']) ? $user['phone'] : '') ?>" required minlength="9" maxlength="12">
+            <input type="text" class="form-control" name="phone" value="<?php echo set_value('phone', isset($user['phone']) ? $user['phone'] : '') ?>" required>
         </div>
         <div class="form-group">
             <label>Dirección</label>
@@ -36,7 +36,7 @@
         </div>
         <div class="form-group">
             <label>Código postal</label>
-            <input type="text" class="form-control" name="postal_code" value="<?php echo set_value('postal_code', isset($user['postal_code']) ? $user['postal_code'] : '') ?>" required minlength="5" maxlength="5">
+            <input type="text" class="form-control" name="postal_code" value="<?php echo set_value('postal_code', isset($user['postal_code']) ? $user['postal_code'] : '') ?>" required>
         </div>
         <div class="form-group">
             <label>Ciudad</label>

@@ -12,7 +12,7 @@ class Order_model extends CI_Model
 
     public function get($where = [], $multipleRows = false) {
         $this->db
-            ->select('orders.*, users.name as user_name, users.surname as user_surname, order_statuses.name as status')
+            ->select('orders.*, users.name as user_name, users.surname as user_surname, users.address, users.email, users.phone, users.postal_code, users.city, order_statuses.name as status')
             ->from('orders')
             ->join('order_statuses', 'order_statuses.id = orders.status_id')
             ->join('users', 'users.id = orders.user_id');

@@ -14,10 +14,14 @@
                 </form>
             <?php endif; ?>
         </h4>
-        <p>Cliente: <?php echo $order['user_name'] ?> <?php echo $order['user_surname'] ?></p>
         <p>Fecha realización: <?php echo date('d-m-Y g:i A', strtotime($order['date'])) ?></p>
         <p>Cantidad total pagada: <b><?php echo $order['total_price'] ?>€</b></p>
         <p>Estado: <span class="badge badge-info p-1"><?php echo $order['status'] ?></span></p>
+        <p><b>Datos cliente:</b></p>
+        <p class="mb-1"><small><b>Nombre</b></small>: <?php echo $order['user_name'] ?> <?php echo $order['user_surname'] ?></p>
+        <p class="mb-1"><small><b>Dirección de envío</b></small>: <?php echo $order['address'] ?>, <?php echo $order['postal_code'] ?>, <?php echo $order['city'] ?></p>
+        <p class="mb-1"><small><b>Teléfono</b></small>: <?php echo $order['phone'] ?></p>
+        <p><small><b>Correo electrónico</b></small>: <?php echo $order['email'] ?></p>
 
         <h5>Artículos del pedido</h5>
         <table class="table">
