@@ -44,7 +44,7 @@ class Site extends MY_Controller {
             'use_page_numbers' => true,
             'total_rows' => $total_pages,
             'per_page' => 1,
-            'full_tag_open' => '<nav class="d-inline-block"><ul class="pagination">',
+            'full_tag_open' => '<nav><ul class="pagination justify-content-center flex-wrap">',
             'full_tag_close' => '</ul></nav>',
             'first_link' => 'Primero',
             'first_tag_open' => '<li class="page-item">',

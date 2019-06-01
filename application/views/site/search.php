@@ -12,16 +12,13 @@
         <?php
         $i = 0;
         foreach($results as $result): $i++; ?>
-            <div class="col-6">
+            <div class="col-12 col-md-6">
                 <?php
                     $result['media_type'] === 'movie'
                         ? $this->load->view('common/movie_card', ['movie' => $result])
                         : $this->load->view('common/person_card', ['person' => $result])
                 ?>
             </div>
-            <?php if ($i % 2 === 0): ?>
-                <div class="w-100"></div>
-            <?php endif; ?>
         <?php endforeach; ?>
     <?php endif; ?>
 </div>
